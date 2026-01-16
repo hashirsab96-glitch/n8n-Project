@@ -1,0 +1,212 @@
+{
+  "name": "My Personal Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.messages[0].text }}",
+        "options": {
+          "systemMessage": "You are a helpful assistant. Please retrieve all relevant information from my internal database only. Do not access or utilize any external data sources or information from the internet. All responses should be based solely on the data stored in my system. Additionally, please provide responses in both English and Roman Urdu."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -48,
+        -32
+      ],
+      "id": "97a2dc51-6814-4efb-8e77-d1bb9031be94",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $( 'WhatsApp Trigger').item.json.contacts [0].wa_id }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -32,
+        176
+      ],
+      "id": "967e6207-e531-453e-bf65-ef27fb5df436",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1y2pFARd-J3QHQAu1Tbjmcc2AeYgaJaftLX6Qj4-7yu4",
+          "mode": "list",
+          "cachedResultName": "Mobile Inventory",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1y2pFARd-J3QHQAu1Tbjmcc2AeYgaJaftLX6Qj4-7yu4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1y2pFARd-J3QHQAu1Tbjmcc2AeYgaJaftLX6Qj4-7yu4/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        112,
+        176
+      ],
+      "id": "65a46533-df09-4c49-95e1-80517a97601d",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "LDMUquyrHnovISs5",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        -320,
+        -32
+      ],
+      "id": "8df05a81-f9f7-436a-a37e-c43ab2012bf7",
+      "name": "WhatsApp Trigger",
+      "webhookId": "374374cd-6050-452d-ac84-723cd9cc9ad2",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "s8HPeotj3eYNA9TQ",
+          "name": "WhatsApp OAuth account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "997000550152728",
+        "recipientPhoneNumber": "+923080763337",
+        "textBody": "=Working {{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        288,
+        -32
+      ],
+      "id": "134323a3-88f2-49fb-8a4d-46f80e5ef295",
+      "name": "Send message",
+      "webhookId": "352f0a2e-bfcf-4115-8d89-5ae19ecf393a",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "UTDhN6v54ALvjJJr",
+          "name": "WhatsApp account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -192,
+        176
+      ],
+      "id": "dc7820f7-4a88-4ff2-a76c-4f07f0b69e19",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "ykHdyb3jLoh6T0qh",
+          "name": "OpenAi account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "0be18474-6924-4e8c-b6e8-98ffb6683aeb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "387490c1c98b62923f6d83b0ddd3694c23458bd1b1e2ba6054762dde2a413482"
+  },
+  "id": "b7Hxcmiba4KSS_O5uQXee",
+  "tags": []
+}
